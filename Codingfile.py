@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#plasseres variabler 
 # Konstanter
 mu0 = 4 * np.pi * 1e-7  # Permeabiliteten i vakuum
 I = 1.0  # Strøm gjennom solenoiden
@@ -11,37 +10,75 @@ L = 5.0  # Lengden på solenoiden
 n = N / L  # Antall viklinger per lengdeenhet
 
 # Definer grid
-# Setter trapper hvor mye per område
-step = 200
-x = np.linspace(-5, 5, step)
-z = np.linspace(-5, 5, step)
-y = np.linspace(-5, 5, step)
-X, Z = np.meshgrid(x, z)
+step = 500
+x = np.linspace(-4, 4, step)
+y = np.linspace(-4, 4, step)
+z = np.linspace(-4, 4, step)
 
-# Beregn magnetfeltkomponentene
-def magnetic_fieldXZ(x, z):
-    #Lager liste med to sider 
-    Bx = np.zeros_like(x)
-    Bz = np.zeros_like(z)
+# Planene
+X, Z = np.meshgrid(x, z)
+Y, Z_ = np.meshgrid(y, z)
+X_, Y_ = np.meshgrid(x, y)
+
+# Funksjoner for magnetfelt i de ulike planene med XZ og YZ
+def magnetic_field(vec1, vec2):
+    B1 = np.zeros_like(vec1)
+    B2 = np.zeros_like(vec2)
     # Innvendig felt (approksimert som uniformt)
-    inside = (np.abs(z) <= L/2) & (np.sqrt(x**2) <= R)
+    inside = (np.abs(vec2) <= L/2) & (np.sqrt(vec1**2) <= R)
+    B2[inside] = mu0 * n * I  # Uniformt felt inne i solenoiden
+    # Utvendig felt (forenklet modell)
+    outside = ~inside
+    r = np.sqrt(vec1[outside]**2 + vec2[outside]**2)
+    B1[outside] = mu0 * I * R**2 * vec1[outside] / (2 * (r**2 + R**2)**(1.5))
+    B2[outside] = mu0 * I * R**2 * vec2[outside] / (2 * (r**2 + R**2)**(1.5))
+    return B1, B2
+
+
+def magnetic_fieldXY(x, y):
+    Bx = np.zeros_like(x)
+    By = np.zeros_like(y)
+    Bz = np.zeros_like(x)
+    # Innvendig felt (approksimert som uniformt)
+    inside = (np.sqrt(x**2 + y**2) <= R)
     Bz[inside] = mu0 * n * I  # Uniformt felt inne i solenoiden
     # Utvendig felt (forenklet modell)
     outside = ~inside
-    r = np.sqrt(x[outside]**2 + z[outside]**2)
+    r = np.sqrt(x[outside]**2 + y[outside]**2)
     Bx[outside] = mu0 * I * R**2 * x[outside] / (2 * (r**2 + R**2)**(1.5))
-    Bz[outside] = mu0 * I * R**2 * z[outside] / (2 * (r**2 + R**2)**(1.5))
-    return Bx, Bz
+    By[outside] = mu0 * I * R**2 * y[outside] / (2 * (r**2 + R**2)**(1.5))
+    return Bx, By, Bz
 
-Bx, Bz = magnetic_fieldXZ(X, Z)
+# hele plotter systemet 
+def plottingsone(B1, B2, axis1, axis2, name, farge):
+    plt.figure(figsize=(8, 6))
+    plt.streamplot(axis1, axis2, B1, B2, color= farge, density=1.5, linewidth=1, arrowsize=1)
+    
+    plt.xlabel(f'{name[1]} (m)')
+    plt.ylabel(f'{name[2]}(m)')
+    plt.title(f'B-felt rundt en solenoide i {name[0]}-planet')
+    plt.grid(True)
+    
 
-# Plot magnetfeltlinjene I xz planet
-plt.streamplot(X, Z, Bx, Bz, color='b', density=1.5, linewidth=1, arrowsize=1)
-# Tegn solenoiden
+# Plot i XZ-planet ved blå farge
+Bx, Bz = magnetic_field(X, Z)
+namesoneXZ = ["XZ" , "x", "z"]
+plottingsone(Bx, Bz, X, Z, namesoneXZ, "b")
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
-plt.xlabel('x (m)')
-plt.ylabel('z (m)')
-plt.title('Magnetfeltlinjer rundt en solenoide')
-plt.axis('equal')
-plt.grid(True)
+plt.show()  
+
+# Plot i YZ-planet i grønn
+By, Bz = magnetic_field(Y, Z_)
+namesoneYZ = ["YZ" , "Y", "z"]
+plottingsone(By, Bz, Y, Z_, namesoneYZ, "g")
+plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
+plt.show() 
+
+#plotting i XY-planet i rød 
+Bx, By, Bz = magnetic_fieldXY(X_, Y_)
+namesoneXY = ["XY" , "x", "y"]
+plottingsone(Bx, By, X_, Y_, namesoneXY, "r")
+#tegne soleniode
+circle = plt.Circle((0, 0), R, color='gray', alpha=0.3)
+plt.gca().add_artist(circle)
 plt.show()
