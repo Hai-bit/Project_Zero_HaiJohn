@@ -64,6 +64,7 @@ def plottingsone(B1, B2, axis1, axis2, name, farge):
 Bx, Bz = magnetic_field(X, Z)
 namesoneXZ = ["XZ" , "x", "z"]
 plottingsone(Bx, Bz, X, Z, namesoneXZ, "b")
+#tegne soleniode
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
   
 
@@ -71,6 +72,7 @@ plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
 By, Bz = magnetic_field(Y, Z_)
 namesoneYZ = ["YZ" , "Y", "z"]
 plottingsone(By, Bz, Y, Z_, namesoneYZ, "g")
+#tegne soleniode
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
  
 
