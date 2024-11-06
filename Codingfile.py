@@ -65,14 +65,14 @@ Bx, Bz = magnetic_field(X, Z)
 namesoneXZ = ["XZ" , "x", "z"]
 plottingsone(Bx, Bz, X, Z, namesoneXZ, "b")
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
-plt.show()  
+  
 
 # Plot i YZ-planet i grønn
 By, Bz = magnetic_field(Y, Z_)
 namesoneYZ = ["YZ" , "Y", "z"]
 plottingsone(By, Bz, Y, Z_, namesoneYZ, "g")
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
-plt.show() 
+ 
 
 #plotting i XY-planet i rød 
 Bx, By, Bz = magnetic_fieldXY(X_, Y_)
