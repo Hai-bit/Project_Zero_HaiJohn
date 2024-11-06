@@ -52,7 +52,7 @@ def magnetic_fieldXY(x, y):
 # hele plotter systemet 
 def plottingsone(B1, B2, axis1, axis2, name, farge):
     plt.figure(figsize=(8, 6))
-    plt.streamplot(axis1, axis2, B1, B2, color= farge, density=1.5, linewidth=1, arrowsize=1)
+    plt.streamplot(axis1, axis2, B1, B2, color= farge, density=1.5)
     
     plt.xlabel(f'{name[1]} (m)')
     plt.ylabel(f'{name[2]}(m)')
