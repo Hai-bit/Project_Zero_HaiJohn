@@ -34,7 +34,6 @@ def magnetic_field(vec1, vec2):
     B2[outside] = mu0 * I * R**2 * vec2[outside] / (2 * (r**2 + R**2)**(1.5))
     return B1, B2
 
-
 def magnetic_fieldXY(x, y):
     Bx = np.zeros_like(x)
     By = np.zeros_like(y)
@@ -49,38 +48,45 @@ def magnetic_fieldXY(x, y):
     By[outside] = mu0 * I * R**2 * y[outside] / (2 * (r**2 + R**2)**(1.5))
     return Bx, By, Bz
 
-# hele plotter systemet 
+# Hele plotter systemet
 def plottingsone(B1, B2, axis1, axis2, name, farge):
+    #Det for at den lager ny plott hele tiden den blir "kaldt opp"
     plt.figure(figsize=(8, 6))
-    plt.streamplot(axis1, axis2, B1, B2, color= farge, density=1.5)
+    #plotter "bølgevektorene" 
+    plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
     
+    # Beregn størrelsen på magnetfeltet
+    B_magnitude = np.sqrt(B1**2 + B2**2)
+    errorsone = 1e-9      # Definer en terskelverdi når tilnærmet 0
+    zero_field = B_magnitude <= errorsone # Finner områder der magnetfeltet er under terskelverdien
+    # plotter ut null område i plotten
+    plt.contourf(axis1, axis2, zero_field, levels=[0.5, 1], colors='red', alpha=0.5)
+
     plt.xlabel(f'{name[1]} (m)')
-    plt.ylabel(f'{name[2]}(m)')
+    plt.ylabel(f'{name[2]} (m)')
     plt.title(f'B-felt rundt en solenoide i {name[0]}-planet')
     plt.grid(True)
-    
 
-# Plot i XZ-planet ved blå farge
+# Plot i XZ-planet med blå farge
 Bx, Bz = magnetic_field(X, Z)
-namesoneXZ = ["XZ" , "x", "z"]
+namesoneXZ = ["XZ", "x", "z"]
 plottingsone(Bx, Bz, X, Z, namesoneXZ, "b")
-#tegne soleniode
+# Tegner solenoiden er
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
-  
 
-# Plot i YZ-planet i grønn
+# Plot i YZ-planet med grønn farge
 By, Bz = magnetic_field(Y, Z_)
-namesoneYZ = ["YZ" , "Y", "z"]
+namesoneYZ = ["YZ", "y", "z"]
 plottingsone(By, Bz, Y, Z_, namesoneYZ, "g")
-#tegne soleniode
+# Tegner solenoiden er
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
- 
 
-#plotting i XY-planet i rød 
+# Plot i XY-planet med rød farge
 Bx, By, Bz = magnetic_fieldXY(X_, Y_)
-namesoneXY = ["XY" , "x", "y"]
+namesoneXY = ["XY", "x", "y"]
 plottingsone(Bx, By, X_, Y_, namesoneXY, "r")
-#tegne soleniode
+# Tegner solenoiden er
 circle = plt.Circle((0, 0), R, color='gray', alpha=0.3)
 plt.gca().add_artist(circle)
+
 plt.show()
