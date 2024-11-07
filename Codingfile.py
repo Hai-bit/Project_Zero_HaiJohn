@@ -59,8 +59,12 @@ def plottingsone(B1, B2, axis1, axis2, name, farge):
     B_magnitude = np.sqrt(B1**2 + B2**2)
     errorsone = 1e-9      # Definer en terskelverdi når tilnærmet 0
     zero_field = B_magnitude <= errorsone # Finner områder der magnetfeltet er under terskelverdien
-    # plotter ut null område i plotten
-    plt.contourf(axis1, axis2, zero_field, levels=[0.5, 1], colors='red', alpha=0.5)
+    # plotter ut null område i plotten med lilla som viser 0 felt
+    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors='purple', alpha=0.5)
+
+    #plassere navn til 0 feltet
+    cbar = plt.colorbar()
+    cbar.set_label('0=B-felt')
 
     plt.xlabel(f'{name[1]} (m)')
     plt.ylabel(f'{name[2]} (m)')
