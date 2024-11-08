@@ -6,7 +6,7 @@ from numba import njit, prange
 mu0 = 4 * np.pi * 1e-7  # Permeabiliteten i vakuum
 I = 1.0  # Strøm gjennom solenoiden
 N = 100  # Antall viklinger
-# Parametere for solenoiden
+# Parametere for solenoiden for med sikker nummer
 antall_punkter = 10000
 # Numba-optimalisert bfieldlist-funksjon
 @njit
@@ -52,14 +52,14 @@ def plottingsone(B1, B2, axis1, axis2, navn, farge, R, L):
     plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
   
     # Beregn størrelsen på magnetfeltet
-    # errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet 0
-    # zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
-    # # Plotter områder med null felt
-    # plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors='purple', alpha=0.5)
+    errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet 0
+    zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
+    # Plotter områder med null felt , endre med grønn siden den ikke er ikke bruk
+    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 0.1], colors='green', alpha=0.5)
 
-    # # Legger til fargebar
-    # cbar = plt.colorbar()
-    # cbar.set_label('0=B-felt')
+    # Legger til fargebar
+    cbar = plt.colorbar()
+    cbar.set_label('0=B-felt')
 
     plt.xlabel(f'{navn[1]} (m)')
     plt.ylabel(f'{navn[2]} (m)')
@@ -67,7 +67,7 @@ def plottingsone(B1, B2, axis1, axis2, navn, farge, R, L):
     plt.grid(True)
 
 # Definerer grid
-steg = 100
+steg = 50
 line = 5
 x = np.linspace(-line, line, steg)
 z = np.linspace(-line, line, steg)

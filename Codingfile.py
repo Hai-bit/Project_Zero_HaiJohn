@@ -48,7 +48,7 @@ def beregn_B_felt(X, Y, Z, koordi):
 antall_viklinger = N
 radius = R
 lengde = L
-antall_punkter = 10000
+antall_punkter = 100000
 
 # Oppretter koordinatene til solenoiden
 theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
@@ -87,7 +87,7 @@ def plottingsone(B1, B2, axis1, axis2, navn, farge):
 
 #Lager standard på alle planene 
 steg = 50
-line = 5
+line = 4
 x = np.linspace(-line, line, steg)
 z = np.linspace(-line, line, steg)
 y = np.linspace(-line, line, steg)
