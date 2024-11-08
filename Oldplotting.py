@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 """
-THis python file is form old python code without using the 
-bfield list, but due to some diifficulties form the XY plane
-it was scrapped for sake for using the new code form the 
-pensum -Hai Duc
+Denne filen er fra tidligere kodestil siden det ble funnet senere
+at denne koden kan ikke foreta regninger fra XY uten Z og må da 
+erstatte og lage ny kode med kode som ble brukt i pensum boken
+"Elementary Electromagnetism Using Python"
 """
 # Konstanter
 mu0 = 4 * np.pi * 1e-7  # Permeabiliteten i vakuum

@@ -13,7 +13,8 @@ n = N / L  # Antall viklinger per lengdeenhet
 # Numba-optimalisert bfieldlist-funksjon
 @njit
 def bfieldlist(r, koordinater): 
-    #Bruker den B-felt fra pensum Chapter 12
+    #Bruker den B-felt fra pensum Chapter 11.1 
+    # "Elementary Electromagnetism Using Python"
     B = np.zeros(3)
     N = koordinater.shape[0]
     for i in range(N):
