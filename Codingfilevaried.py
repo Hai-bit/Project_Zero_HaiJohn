@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numba import njit, prange # For kovertering til C++ for enklere kjøring
-
 # Konstanter
 mu0 = 4 * np.pi * 1e-7  # Permeabiliteten i vakuum
 I = 1.0  # Strøm gjennom solenoiden
@@ -10,9 +9,24 @@ N = 100  # Antall viklinger
 L = 5.0  # Lengden på solenoiden
 n = N / L  # Antall viklinger per lengdeenhet
 
+# Parametere for solenoiden
+antall_viklinger = N
+radius = R
+lengde = L
+antall_punkter = 1000
+
+# Oppretter koordinatene til solenoiden
+theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
+z = np.linspace(-lengde / 2, lengde / 2, antall_punkter)
+x = radius * np.cos(theta)
+y = radius * np.sin(theta)
+koordinater = np.column_stack((x, y, z))
+
 # Numba-optimalisert bfieldlist-funksjon
 @njit
-def bfieldlist(r, koordinater):
+def bfieldlist(r, koordinater): 
+    #Bruker den B-felt fra pensum Chapter 11.1 
+    # "Elementary Electromagnetism Using Python"
     B = np.zeros(3)
     N = koordinater.shape[0]
     for i in range(N):
@@ -27,6 +41,7 @@ def bfieldlist(r, koordinater):
     return B
 
 # Numba-optimalisert funksjon for å beregne magnetfeltet over gridet
+# Denne funskjonen gjør at det er mulig å paraelle regne B felt raskere
 @njit(parallel=True)
 def beregn_B_felt(X, Y, Z, koordi):
     Bx = np.zeros_like(X)
@@ -40,19 +55,6 @@ def beregn_B_felt(X, Y, Z, koordi):
             By[i, j] = B[1]
             Bz[i, j] = B[2]
     return Bx, By, Bz
-
-# Parametere for solenoiden
-antall_viklinger = N
-radius = R
-lengde = L
-antall_punkter = 1000
-
-# Oppretter koordinatene til solenoiden
-theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
-z = np.linspace(-lengde / 2, lengde / 2, antall_punkter)
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
-koordinater = np.column_stack((x, y, z))
 
 # Funksjon for plotting
 def plottingsone(B1, B2, axis1, axis2, navn, farge):
@@ -77,44 +79,42 @@ def plottingsone(B1, B2, axis1, axis2, navn, farge):
     plt.grid(True)
 
 #Lager standard på alle planene 
-steg = 100
+steg = 50
 line = 5
 x = np.linspace(-line, line, steg)
 z = np.linspace(-line, line, steg)
 y = np.linspace(-line, line, steg)
-# Definerer grid i XZ-planet
+
+#--- for XZ-planet--- med blå 
 X, Z = np.meshgrid(x, z)
 Y = np.zeros_like(X)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
 Bx, By, Bz = beregn_B_felt(X, Y, Z, koordinater)
-#Plotting
 navnXZ = ["XZ", "x", "z"]
 plottingsone(Bx, Bz, X, Z, navnXZ, "b")
 # Tegner solenoiden
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
 
-# Plot i YZ-planet med grønn farge
+#--- for YZ-planet--- med grønn 
 # Definerer grid i YZ-planet
 Y, Z_ = np.meshgrid(y, z)
 X = np.zeros_like(Y)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
 Bx, By, Bz = beregn_B_felt(X, Y, Z_, koordinater)
-#Plotting
-navnYZ = ["YZ", "y", "z"]
+navnYZ = ["YZ", "y", "z"] 
 plottingsone(By, Bz, Y, Z_, navnYZ, "g")
 # Tegner solenoiden
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
 
-# Plot i XY-planet med rød farge
+#--- for XY-planet--- med rød 
 # Definerer grid i XY-planet
 X_, Y_ = np.meshgrid(x, y)
 Z = np.zeros_like(X_)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
 Bx, By, Bz = beregn_B_felt(X_, Y_, Z, koordinater)
-#Plotting
 navnXY = ["XY", "x", "y"]
 plottingsone(Bx, By, X_, Y_, navnXY, "r")
 # Tegner solenoiden
