@@ -12,8 +12,7 @@ n = N / L  # Antall viklinger per lengdeenhet
 
 # Numba-optimalisert bfieldlist-funksjon
 @njit
-def bfieldlist(r, koordinater): 
-    #Bruker den B-felt fra pensum Chapter 12
+def bfieldlist(r, koordinater):
     B = np.zeros(3)
     N = koordinater.shape[0]
     for i in range(N):
@@ -28,7 +27,6 @@ def bfieldlist(r, koordinater):
     return B
 
 # Numba-optimalisert funksjon for å beregne magnetfeltet over gridet
-# Denne funskjonen gjør at det er mulig å paraelle regne B felt raskere
 @njit(parallel=True)
 def beregn_B_felt(X, Y, Z, koordi):
     Bx = np.zeros_like(X)
