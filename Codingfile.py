@@ -80,44 +80,42 @@ def plottingsone(B1, B2, axis1, axis2, navn, farge):
     plt.grid(True)
 
 #Lager standard på alle planene 
-steg = 100
+steg = 50
 line = 5
 x = np.linspace(-line, line, steg)
 z = np.linspace(-line, line, steg)
 y = np.linspace(-line, line, steg)
-# Definerer grid i XZ-planet
+
+#--- for XZ-planet--- med blå 
 X, Z = np.meshgrid(x, z)
 Y = np.zeros_like(X)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
 Bx, By, Bz = beregn_B_felt(X, Y, Z, koordinater)
-#Plotting
 navnXZ = ["XZ", "x", "z"]
 plottingsone(Bx, Bz, X, Z, navnXZ, "b")
 # Tegner solenoiden
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
 
-# Plot i YZ-planet med grønn farge
+#--- for YZ-planet--- med grønn 
 # Definerer grid i YZ-planet
 Y, Z_ = np.meshgrid(y, z)
 X = np.zeros_like(Y)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
 Bx, By, Bz = beregn_B_felt(X, Y, Z_, koordinater)
-#Plotting
-navnYZ = ["YZ", "y", "z"]
+navnYZ = ["YZ", "y", "z"] 
 plottingsone(By, Bz, Y, Z_, navnYZ, "g")
 # Tegner solenoiden
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
 
-# Plot i XY-planet med rød farge
+#--- for XY-planet--- med rød 
 # Definerer grid i XY-planet
 X_, Y_ = np.meshgrid(x, y)
 Z = np.zeros_like(X_)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
 Bx, By, Bz = beregn_B_felt(X_, Y_, Z, koordinater)
-#Plotting
 navnXY = ["XY", "x", "y"]
 plottingsone(Bx, By, X_, Y_, navnXY, "r")
 # Tegner solenoiden
