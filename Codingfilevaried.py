@@ -96,18 +96,6 @@ plottingsone(Bx, Bz, X, Z, navnXZ, "b")
 # Tegner solenoiden
 plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
 
-#--- for YZ-planet--- med grønn 
-# Definerer grid i YZ-planet
-Y, Z_ = np.meshgrid(y, z)
-X = np.zeros_like(Y)
-
-# Beregner magnetfeltet ved hvert punkt i gridet
-Bx, By, Bz = beregn_B_felt(X, Y, Z_, koordinater)
-navnYZ = ["YZ", "y", "z"] 
-plottingsone(By, Bz, Y, Z_, navnYZ, "g")
-# Tegner solenoiden
-plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
-
 #--- for XY-planet--- med rød 
 # Definerer grid i XY-planet
 X_, Y_ = np.meshgrid(x, y)
