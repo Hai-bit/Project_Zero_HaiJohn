@@ -48,7 +48,7 @@ def beregn_B_felt(X, Y, Z, koordi):
 antall_viklinger = N
 radius = R
 lengde = L
-antall_punkter = 1000
+antall_punkter = 10000
 
 # Oppretter koordinatene til solenoiden
 theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
@@ -60,15 +60,21 @@ koordinater = np.column_stack((x, y, z))
 # Funksjon for plotting
 def plottingsone(B1, B2, axis1, axis2, navn, farge):
     plt.figure(figsize=(8, 6))
+
+    #plotte med arealområde med B felt
+    B_magnitude = np.sqrt(B1**2 + B2**2)
+    contour = plt.contourf(axis1, axis2, B_magnitude, levels=50, cmap='viridis')
+    cbar = plt.colorbar(contour, ax=plt.gca())
+    cbar.set_label('Magnetfeltstyrke (T)')
+
+    #plotter strømmepilene til plotten
     plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
 
-    # Beregn størrelsen på magnetfeltet
-    B_magnitude = np.sqrt(B1**2 + B2**2)
+    # finner om det er null B felt
     errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet 0
     zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
-
     # Plotter områder med null felt
-    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors='purple', alpha=0.5)
+    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors='black', alpha=0.5)
 
     # Legger til fargebar
     cbar = plt.colorbar()

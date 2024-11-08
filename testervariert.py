@@ -7,27 +7,22 @@ mu0 = 4 * np.pi * 1e-7  # Permeabiliteten i vakuum
 I = 1.0  # Strøm gjennom solenoiden
 N = 100  # Antall viklinger
 # Parametere for solenoiden
-antall_punkter = 1000
+antall_punkter = 10000
 # Numba-optimalisert bfieldlist-funksjon
 @njit
 def bfieldlist(r, koordinater):
+    #Bruker den B-felt fra pensum Chapter 11.1 
+    # "Elementary Electromagnetism Using Python"
     B = np.zeros(3)
-    Np = koordinater.shape[0]
-    for i in range(Np):
+    N = koordinater.shape[0]
+    for i in range(N):
         i0 = i
-        i1 = (i + 1) % Np  # Sikrer at vi går tilbake til start
+        i1 = (i + 1) % N  # Sikrer at vi går tilbake til start
         midtpunkt = 0.5 * (koordinater[i1] + koordinater[i0])  # Midtpunktet av segmentet
         R_vec = r - midtpunkt
         dlv = koordinater[i1] - koordinater[i0]  # Differensial lengdevektor
-        norm_R = np.sqrt(R_vec[0]**2 + R_vec[1]**2 + R_vec[2]**2)
-        if norm_R == 0:
-            continue
-        kryss = np.array([
-            dlv[1]*R_vec[2] - dlv[2]*R_vec[1],
-            dlv[2]*R_vec[0] - dlv[0]*R_vec[2],
-            dlv[0]*R_vec[1] - dlv[1]*R_vec[0]
-        ])
-        dB = (mu0 * I / (4 * np.pi)) * kryss / norm_R**3
+        norm_R = np.linalg.norm(R_vec)
+        dB = (mu0 * I / (4 * np.pi)) * np.cross(dlv, R_vec) / norm_R**3
         B += dB
     return B
 
@@ -49,19 +44,22 @@ def beregn_B_felt(X, Y, Z, koordinater):
 # Funksjon for plotting
 def plottingsone(B1, B2, axis1, axis2, navn, farge, R, L):
     plt.figure(figsize=(8, 6))
-    plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
-    
-    # Beregn størrelsen på magnetfeltet
+
     B_magnitude = np.sqrt(B1**2 + B2**2)
-    errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet 0
-    zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
+    contour = plt.contourf(axis1, axis2, B_magnitude, levels=50, cmap='viridis')
+    cbar = plt.colorbar(contour, ax=plt.gca())
+    cbar.set_label('Magnetfeltstyrke (T)')
+    plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
+  
+    # Beregn størrelsen på magnetfeltet
+    # errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet 0
+    # zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
+    # # Plotter områder med null felt
+    # plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors='purple', alpha=0.5)
 
-    # Plotter områder med null felt
-    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors='purple', alpha=0.5)
-
-    # Legger til fargebar
-    cbar = plt.colorbar()
-    cbar.set_label('0=B-felt')
+    # # Legger til fargebar
+    # cbar = plt.colorbar()
+    # cbar.set_label('0=B-felt')
 
     plt.xlabel(f'{navn[1]} (m)')
     plt.ylabel(f'{navn[2]} (m)')
@@ -69,26 +67,28 @@ def plottingsone(B1, B2, axis1, axis2, navn, farge, R, L):
     plt.grid(True)
 
 # Definerer grid
-steg = 50
+steg = 100
 line = 5
 x = np.linspace(-line, line, steg)
 z = np.linspace(-line, line, steg)
 y = np.linspace(-line, line, steg)
 
-# *** START på for-løkke over forskjellige solenoidstørrelser ***
+
+""" 
+Endringer skal gjøres rundt her 
+"""
 # Liste over forskjellige radius og lengder
-radius_liste = [0.5, 1.0, 1.5]
+radius_liste = [1.0]
 lengde_liste = [3.0, 5.0, 7.0]
 
-for R in radius_liste:
-    for L in lengde_liste:
+for L in lengde_liste:
+    for R in radius_liste:
         # Oppdaterer antall viklinger per lengdeenhet
         n = N / L
         radius = R
         lengde = L
-        antall_viklinger = N
         # Oppretter koordinatene til solenoiden
-        theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
+        theta = np.linspace(0, 2 * np.pi * N, antall_punkter)
         z_solenoid = np.linspace(-lengde / 2, lengde / 2, antall_punkter)
         x_solenoid = radius * np.cos(theta)
         y_solenoid = radius * np.sin(theta)
@@ -124,4 +124,3 @@ for R in radius_liste:
         plt.axis('equal')
 
 plt.show()
-# *** SLUTT på for-løkke over forskjellige solenoidstørrelser ***
