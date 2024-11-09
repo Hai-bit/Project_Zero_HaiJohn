@@ -10,14 +10,14 @@ FYS1120 - semester H 2024
 
 
 # Eksterne biblioteker
-import numpy as np                  # Vektorisert regning
-import matplotlib.pyplot as plt     # Plotting
-from numba import njit, prange      # JIT-kompilering (raskere kjøring)
+import numpy as np
+import matplotlib.pyplot as plt
+from numba import njit, prange  # type: ignore
 
 
 # Konstanter
-mu0 = 4 * np.pi * 1.0e-7            # Permeabilitiet i vakuum (T * m / A)
-I = 1.0                             # Strømmen gjennom solenoiden (A)
+mu0 = 4 * np.pi * 1.0e-7  # Permeabilitiet i vakuum (T * m / A)
+I = 1.0  # Strømmen gjennom solenoiden (A)
 
 # --- Metoder --- #
 
@@ -25,6 +25,7 @@ I = 1.0                             # Strømmen gjennom solenoiden (A)
 # fra en strømførende leder
 # - bruker eksemplet fra pensum: Chapter 11.1
 # "Elementary Electromagnetism Using Python"
+# - optimalisert ved bruk av Numba
 @njit
 def bfieldlist(r: np.ndarray, koordinater: np.ndarray, i: float = I) -> np.ndarray:
     """
@@ -68,3 +69,100 @@ def bfieldlist(r: np.ndarray, koordinater: np.ndarray, i: float = I) -> np.ndarr
 
     # Returner feltet
     return B
+
+
+# Metode for å regne ut magnetisk feltstyrke over
+# et rutenett (grid)
+# - optimalisert ved bruk av Numba (parallellkjøring)
+@njit(parallel=True)
+def beregn_B_felt(
+    X: np.ndarray, Y: np.ndarray, Z: np.ndarray, koordi: np.ndarray, i: float = I
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Regner ut magnetisk feltstyrke over et rutenett (grid)
+
+    Argumenter:
+        X: np.ndarray
+            Liste med x-koordinater
+        Y: np.ndarray
+            Liste med y-koordinater
+        Z: np.ndarray
+            Liste med z-koordinater
+        koordi: np.ndarray
+            Liste med punkter på lederkurven
+        i: float = I
+            Strøm gjennom lederen
+    """
+
+    # Initialiser tre lister for hvert
+    # komponent i feltvektoren
+    Bx = np.zeros_like(X)
+    By = np.zeros_like(X)
+    Bz = np.zeros_like(X)
+
+    # Regn ut feltstyrken for hvert punkt i planet
+    for u in prange(X.shape[0]):
+        for v in range(X.shape[1]):
+            r = np.array([X[u, v], Y[u, v], Z[u, v]])
+            B = bfieldlist(r, koordi, i)
+            Bx[u, v] = B[0]
+            By[u, v] = B[1]
+            Bz[u, v] = B[2]
+
+    return Bx, By, Bz
+
+
+# Metode for å plotte magnetisk feltstyrke
+def plottingsone(
+    B1: np.ndarray,
+    B2: np.ndarray,
+    axis1: np.ndarray,
+    axis2: np.ndarray,
+    navn: list[str],
+    farge: str,
+) -> None:
+    """
+    Plotter magnetisk feltstyrke på et plan
+
+    Argumenter:
+        B1: np.ndarray
+            Første komponent i feltvektoren
+        B2: np.ndarray
+            Andre komponent i feltvektoren
+        axis1: np.ndarray
+            Første akse i planet
+        axis2: np.ndarray
+            Andre akse i planet
+        navn: str
+            Navn til akser på figuren
+        farge: str
+            Farge til feltlinjene
+    """
+
+    # Lag en figur
+    plt.figure(figsize=(8, 6))
+
+    # Plott feltstyrken i et arealområde
+    B_magnitude = np.sqrt(B1 ** 2 + B2 ** 2)
+    contour = plt.contourf(axis1, axis2, B_magnitude, levels=50, cmap="viridis")
+    cbar = plt.colorbar(contour, ax=plt.gca())
+    cbar.set_label("Magnetfeltstyrke (T)")
+
+    # Plott feltlinjene på planet
+    plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
+
+    # Finn punktene der feltstyrken er lik null
+    errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet lik null
+    zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
+
+    # Plott områdene med feltstyrke under terskelen
+    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors="black", alpha=0.5)
+
+    # Legg til fargesøyle
+    cbar = plt.colorbar()
+    cbar.set_label("$|B| = 0$")
+
+    plt.xlabel(f"{navn[1]} (m)")
+    plt.ylabel(f"{navn[2]} (m)")
+    plt.title(f"B-felt rundt en solenoide i {navn[0]}-planet")
+    plt.grid(True)
