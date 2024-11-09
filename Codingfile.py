@@ -1,6 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Grunnleggende biblioteker
 import numpy as np
 import matplotlib.pyplot as plt
-from numba import njit, prange # For kovertering til C++ for enklere kjøring
+
+# For kovertering til C++ for enklere kjøring
+from numba import njit, prange
 
 # Konstanter
 mu0 = 4 * np.pi * 1e-7  # Permeabiliteten i vakuum
@@ -11,22 +17,48 @@ L = 5.0  # Lengden på solenoiden
 n = N / L  # Antall viklinger per lengdeenhet
 
 # Numba-optimalisert bfieldlist-funksjon
+# Bruker den B-felt fra pensum Chapter 11.1
+# "Elementary Electromagnetism Using Python"
 @njit
-def bfieldlist(r, koordinater): 
-    #Bruker den B-felt fra pensum Chapter 11.1 
-    # "Elementary Electromagnetism Using Python"
+def bfieldlist(r: np.ndarray, koordinater: np.ndarray, i: float = I) -> np.ndarray:
+    """
+    Regner ut vektoren for den magnetiske feltstyrken
+    ved punktet `r` fra en strømførende leder.
+
+    Argumenter:
+        r: np.ndarray
+            Punkt i rommet
+        koordinater: np.ndarray
+            Liste med alle punkter på lederkurven
+        i: float = I
+            Strømmen gjennom lederen
+    """
+
+    
     B = np.zeros(3)
     N = koordinater.shape[0]
-    for i in range(N):
-        i0 = i
-        i1 = (i + 1) % N  # Sikrer at vi går tilbake til start
-        midtpunkt = 0.5 * (koordinater[i1] + koordinater[i0])  # Midtpunktet av segmentet
-        R_vec = r - midtpunkt
-        dlv = koordinater[i1] - koordinater[i0]  # Differensial lengdevektor
-        norm_R = np.linalg.norm(R_vec)
-        dB = (mu0 * I / (4 * np.pi)) * np.cross(dlv, R_vec) / norm_R**3
+    for n in range(N):
+        # Regn ut det magnetiske feltet for en lukket sløyfe
+        n0 = n
+        n1 = (n + 1) % N  # Sikrer at vi går tilbake til start
+
+        # Midtpunktet til segmentet
+        mid = (koordinater[n1] + koordinater[n0]) / 2
+
+        # Regn ut vektorer
+        R_vec = r - mid  # Avstandsvektor
+        dlv = koordinater[n1] - koordinater[n0]  # Linjeelement
+        norm_R = np.linalg.norm(R_vec)  # Normalisert avstandsvektor
+
+        # Regn ut differensialelementet for det magnetiske feltet
+        # og regn ut netto magnetisk felt styrke ved å summere
+        # opp differensialelementer
+        dB = (mu0 * i / (4 * np.pi)) * np.cross(dlv, R_vec) / np.power(norm_R, 3)
         B += dB
+
+    # Returner feltet
     return B
+
 
 # Numba-optimalisert funksjon for å beregne magnetfeltet over gridet
 # Denne funskjonen gjør at det er mulig å paraelle regne B felt raskere
@@ -44,11 +76,12 @@ def beregn_B_felt(X, Y, Z, koordi):
             Bz[i, j] = B[2]
     return Bx, By, Bz
 
+
 # Parametere for solenoiden
 antall_viklinger = N
 radius = R
 lengde = L
-antall_punkter = 100000
+antall_punkter = 10000
 
 # Oppretter koordinatene til solenoiden
 theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
@@ -61,38 +94,39 @@ koordinater = np.column_stack((x, y, z))
 def plottingsone(B1, B2, axis1, axis2, navn, farge):
     plt.figure(figsize=(8, 6))
 
-    #plotte med arealområde med B felt
-    B_magnitude = np.sqrt(B1**2 + B2**2)
-    contour = plt.contourf(axis1, axis2, B_magnitude, levels=50, cmap='viridis')
+    # plotte med arealområde med B felt
+    B_magnitude = np.sqrt(B1 ** 2 + B2 ** 2)
+    contour = plt.contourf(axis1, axis2, B_magnitude, levels=50, cmap="viridis")
     cbar = plt.colorbar(contour, ax=plt.gca())
-    cbar.set_label('Magnetfeltstyrke (T)')
+    cbar.set_label("Magnetfeltstyrke (T)")
 
-    #plotter strømmepilene til plotten
+    # plotter strømmepilene til plotten
     plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
 
     # finner om det er null B felt
     errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet 0
     zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
     # Plotter områder med null felt
-    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors='black', alpha=0.5)
+    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors="black", alpha=0.5)
 
     # Legger til fargebar
     cbar = plt.colorbar()
-    cbar.set_label('0=B-felt')
+    cbar.set_label("0=B-felt")
 
-    plt.xlabel(f'{navn[1]} (m)')
-    plt.ylabel(f'{navn[2]} (m)')
-    plt.title(f'B-felt rundt en solenoide i {navn[0]}-planet')
+    plt.xlabel(f"{navn[1]} (m)")
+    plt.ylabel(f"{navn[2]} (m)")
+    plt.title(f"B-felt rundt en solenoide i {navn[0]}-planet")
     plt.grid(True)
 
-#Lager standard på alle planene 
+
+# Lager standard på alle planene
 steg = 50
 line = 4
 x = np.linspace(-line, line, steg)
 z = np.linspace(-line, line, steg)
 y = np.linspace(-line, line, steg)
 
-#--- for XZ-planet--- med blå 
+# --- for XZ-planet--- med blå
 X, Z = np.meshgrid(x, z)
 Y = np.zeros_like(X)
 
@@ -101,21 +135,21 @@ Bx, By, Bz = beregn_B_felt(X, Y, Z, koordinater)
 navnXZ = ["XZ", "x", "z"]
 plottingsone(Bx, Bz, X, Z, navnXZ, "b")
 # Tegner solenoiden
-plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
+plt.fill_between([-R, R], -L / 2, L / 2, color="gray", alpha=0.3)
 
-#--- for YZ-planet--- med grønn 
+# --- for YZ-planet--- med grønn
 # Definerer grid i YZ-planet
 Y, Z_ = np.meshgrid(y, z)
 X = np.zeros_like(Y)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
 Bx, By, Bz = beregn_B_felt(X, Y, Z_, koordinater)
-navnYZ = ["YZ", "y", "z"] 
+navnYZ = ["YZ", "y", "z"]
 plottingsone(By, Bz, Y, Z_, navnYZ, "g")
 # Tegner solenoiden
-plt.fill_between([-R, R], -L/2, L/2, color='gray', alpha=0.3)
+plt.fill_between([-R, R], -L / 2, L / 2, color="gray", alpha=0.3)
 
-#--- for XY-planet--- med rød 
+# --- for XY-planet--- med rød
 # Definerer grid i XY-planet
 X_, Y_ = np.meshgrid(x, y)
 Z = np.zeros_like(X_)
@@ -125,6 +159,6 @@ Bx, By, Bz = beregn_B_felt(X_, Y_, Z, koordinater)
 navnXY = ["XY", "x", "y"]
 plottingsone(Bx, By, X_, Y_, navnXY, "r")
 # Tegner solenoiden
-sirkel = plt.Circle((0, 0), R, color='gray', alpha=0.3)
+sirkel = plt.Circle((0, 0), R, color="gray", alpha=0.3)
 plt.gca().add_artist(sirkel)
 plt.show()
