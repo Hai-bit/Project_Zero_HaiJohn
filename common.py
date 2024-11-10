@@ -123,6 +123,7 @@ def plottingsone(
     farge: str,
     R: Optional[float] = None,
     L: Optional[float] = None,
+    tol: float = 1.0e-6
 ) -> None:
     """
     Plotter magnetisk feltstyrke på et plan
@@ -144,6 +145,10 @@ def plottingsone(
             Solenoidens radius
         L: Optional[float] = None
             Solenoidens lengde
+        tol: float = 1.0e-6
+            Toleranse der verdier under den
+            betraktes til å være tilnærmet
+            lik null
     """
 
     # Lag en figur
@@ -159,11 +164,10 @@ def plottingsone(
     plt.streamplot(axis1, axis2, B1, B2, color=farge, density=1.5)
 
     # Finn punktene der feltstyrken er lik null
-    errorsone = 1e-9  # Terskelverdi for når feltet er tilnærmet lik null
-    zero_field = B_magnitude <= errorsone  # Områder med felt under terskelverdien
+    zero_field = B_magnitude <= tol  # Områder med felt under terskelverdien
 
     # Plott områdene med feltstyrke under terskelen
-    plt.contourf(axis1, axis2, zero_field, levels=[1e-9, 1], colors="black", alpha=0.5)
+    plt.contourf(axis1, axis2, zero_field, levels=[tol, 1], colors="black", alpha=0.5)
 
     # Legg til fargesøyle
     cbar = plt.colorbar()

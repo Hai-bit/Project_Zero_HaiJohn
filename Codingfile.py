@@ -15,16 +15,15 @@ L = 5.0  # Lengden på solenoiden
 n = N / L  # Antall viklinger per lengdeenhet
 
 # Parametere for solenoiden
-antall_viklinger = N
 radius = R
 lengde = L
 antall_punkter = 5000
 
 # Oppretter koordinatene til solenoiden
-theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
-z = np.linspace(-lengde / 2, lengde / 2, antall_punkter)
-x = radius * np.cos(theta)
-y = radius * np.sin(theta)
+theta = np.linspace(0, 2 * np.pi * N, antall_punkter)
+z = L * (theta - N * np.pi) / (2 * np.pi * N)
+x = R * np.cos(theta)
+y = R * np.sin(theta)
 koordinater = np.column_stack((x, y, z))
 
 # Lager standard på alle planene
