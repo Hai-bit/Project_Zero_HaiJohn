@@ -13,6 +13,7 @@ FYS1120 - semester H 2024
 import numpy as np
 import matplotlib.pyplot as plt
 from numba import njit, prange  # type: ignore
+from typing import Optional
 
 
 # Konstanter
@@ -27,7 +28,7 @@ I = 1.0  # Strømmen gjennom solenoiden (A)
 # "Elementary Electromagnetism Using Python"
 # - optimalisert ved bruk av Numba
 @njit
-def bfieldlist(r: np.ndarray, koordinater: np.ndarray, i: float = I) -> np.ndarray:
+def bfieldlist(r: np.ndarray, koordinater: np.ndarray, i: float) -> np.ndarray:
     """
     Regner ut vektoren for den magnetiske feltstyrken
     ved punktet `r` fra en strømførende leder.
@@ -76,7 +77,7 @@ def bfieldlist(r: np.ndarray, koordinater: np.ndarray, i: float = I) -> np.ndarr
 # - optimalisert ved bruk av Numba (parallellkjøring)
 @njit(parallel=True)
 def beregn_B_felt(
-    X: np.ndarray, Y: np.ndarray, Z: np.ndarray, koordi: np.ndarray, i: float = I
+    X: np.ndarray, Y: np.ndarray, Z: np.ndarray, koordi: np.ndarray, i: float
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Regner ut magnetisk feltstyrke over et rutenett (grid)
@@ -120,6 +121,8 @@ def plottingsone(
     axis2: np.ndarray,
     navn: list[str],
     farge: str,
+    R: Optional[float] = None,
+    L: Optional[float] = None,
 ) -> None:
     """
     Plotter magnetisk feltstyrke på et plan
@@ -137,6 +140,10 @@ def plottingsone(
             Navn til akser på figuren
         farge: str
             Farge til feltlinjene
+        R: Optional[float] = None
+            Solenoidens radius
+        L: Optional[float] = None
+            Solenoidens lengde
     """
 
     # Lag en figur
@@ -164,5 +171,15 @@ def plottingsone(
 
     plt.xlabel(f"{navn[1]} (m)")
     plt.ylabel(f"{navn[2]} (m)")
+
+    title = f"B-felt rundt en solenoide i {navn[0]}-planet"
+
+    if (R) and (not L):
+        title += f" ({R=})"
+    elif (not R) and (L):
+        title += f" ({L=})"
+    elif R and L:
+        title += f" ({R=}, {L=})"
+
     plt.title(f"B-felt rundt en solenoide i {navn[0]}-planet")
     plt.grid(True)

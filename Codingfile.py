@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Grunnleggende biblioteker
@@ -40,7 +39,7 @@ X, Z = np.meshgrid(x, z)
 Y = np.zeros_like(X)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
-Bx, By, Bz = beregn_B_felt(X, Y, Z, koordinater)
+Bx, By, Bz = beregn_B_felt(X, Y, Z, koordinater, I)
 navnXZ = ["XZ", "x", "z"]
 plottingsone(Bx, Bz, X, Z, navnXZ, "b")
 # Tegner solenoiden
@@ -52,7 +51,7 @@ Y, Z_ = np.meshgrid(y, z)
 X = np.zeros_like(Y)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
-Bx, By, Bz = beregn_B_felt(X, Y, Z_, koordinater)
+Bx, By, Bz = beregn_B_felt(X, Y, Z_, koordinater, I)
 navnYZ = ["YZ", "y", "z"]
 plottingsone(By, Bz, Y, Z_, navnYZ, "g")
 # Tegner solenoiden
@@ -64,7 +63,7 @@ X_, Y_ = np.meshgrid(x, y)
 Z = np.zeros_like(X_)
 
 # Beregner magnetfeltet ved hvert punkt i gridet
-Bx, By, Bz = beregn_B_felt(X_, Y_, Z, koordinater)
+Bx, By, Bz = beregn_B_felt(X_, Y_, Z, koordinater, I)
 navnXY = ["XY", "x", "y"]
 plottingsone(Bx, By, X_, Y_, navnXY, "r")
 # Tegner solenoiden
