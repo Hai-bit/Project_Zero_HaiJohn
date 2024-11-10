@@ -7,7 +7,7 @@ mu0 = 4 * np.pi * 1e-7  # Permeabiliteten i vakuum
 I = 1.0  # Strøm gjennom solenoiden
 N = 100  # Antall viklinger
 # Parametere for solenoiden for med sikker nummer
-antall_punkter = 10000
+antall_punkter = 5000
 # Numba-optimalisert bfieldlist-funksjon
 @njit
 def bfieldlist(r, koordinater):

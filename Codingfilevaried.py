@@ -14,7 +14,7 @@ n = N / L  # Antall viklinger per lengdeenhet
 antall_viklinger = N
 radius = R
 lengde = L
-antall_punkter = 1000
+antall_punkter = 5000
 
 # Oppretter koordinatene til solenoiden
 theta = np.linspace(0, 2 * np.pi * antall_viklinger, antall_punkter)
