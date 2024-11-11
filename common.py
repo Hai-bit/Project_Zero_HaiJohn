@@ -123,7 +123,7 @@ def plottingsone(
     farge: str,
     R: Optional[float] = None,
     L: Optional[float] = None,
-    tol: float = 1.0e-6
+    tol: float = 1.0e-6,
 ) -> None:
     """
     Plotter magnetisk feltstyrke på et plan

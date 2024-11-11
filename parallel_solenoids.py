@@ -13,12 +13,12 @@ R = 1.0  # Radius av solenoiden
 N = 100  # Antall viklinger
 L = 2.5  # Lengden på solenoiden
 n = 5000  # Antall punkter
-z0 = 1.0  # Avstand fra xy-planet
+y0 = 2.0  # Avstand fra xz-planet
 
 # Størrelsene på planene
 steg = 100  # Antall steg
-line_v = 1.5 * (z0 + L)  # Verdikal størrelse på plottet
-line_h = line_v / 2  # Horisontal størrelse på plottet
+line_h = 1.5 * (y0 + 2 * R)  # Horisontal størrelse på plottet
+line_v = 1.5 * L  # Verdikal størrelse på plottet
 
 # - koordinatene på planene
 px = np.linspace(-line_h, line_h, steg)
@@ -48,19 +48,21 @@ theta = np.linspace(0, 2 * np.pi * N, n)
 # Koordinatene til solenoide nr. 1
 # - rotasjon mot klokka
 x1 = R * np.cos(theta)
-y1 = R * np.sin(theta)
-z1 = z0 + L * theta / (2 * np.pi * N)
+y1 = (y0 + R) + R * np.sin(theta)
+z1 = L * (theta - N * np.pi) / (2 * np.pi * N)
 
 k1 = np.column_stack((x1, y1, z1))
+I1 = I
 
 # Koordinatene til solenoide nr 2.
 # - speilvendt om xy-planet,
 #   rotasjon med klokka
-x2 = R * np.cos(-theta)
-y2 = R * np.sin(-theta)
-z2 = -z1
+x2 = R * np.cos(theta)
+y2 = -(y0 + R) + R * np.sin(theta)
+z2 = z1
 
 k2 = np.column_stack((x2, y2, z2))
+I2 = I
 
 # Liste med planer
 planer = [
@@ -73,8 +75,8 @@ planer = [
 # fra xz-, yz- og xy-planet
 for plan, indeks, navn, farge in planer:
     # Regn ut feltstyrken fra hver solenoide
-    B1 = beregn_B_felt(plan[0], plan[1], plan[2], k1, I)
-    B2 = beregn_B_felt(plan[0], plan[1], plan[2], k2, I)
+    B1 = beregn_B_felt(plan[0], plan[1], plan[2], k1, I1)
+    B2 = beregn_B_felt(plan[0], plan[1], plan[2], k2, I2)
 
     # Hent fram relevante komponenter og regn ut
     # netto feltstyrke
@@ -85,7 +87,7 @@ for plan, indeks, navn, farge in planer:
 
     # Regn ut feltstyrken i origo og skriv den ut
     origo = np.zeros(3)
-    B_origo = bfieldlist(origo, k1, I) + bfieldlist(origo, k2, I)
+    B_origo = bfieldlist(origo, k1, I1) + bfieldlist(origo, k2, I2)
 
     print("|B(0, 0, 0)| = %.3f uT" % (np.linalg.norm(B_origo) * 1.0e6))
 
