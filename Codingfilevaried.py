@@ -14,7 +14,7 @@ N = 100  # Antall viklinger
 antall_punkter = 5000
 
 # Definerer grid
-steg = 50
+steg = 100
 line = 5
 x = np.linspace(-line, line, steg)
 z = np.linspace(-line, line, steg)
