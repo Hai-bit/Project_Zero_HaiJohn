@@ -167,7 +167,7 @@ def plottingsone(
     zero_field = B_magnitude <= tol  # Områder med felt under terskelverdien
 
     # Plott områdene med feltstyrke under terskelen
-    plt.contourf(axis1, axis2, zero_field, levels=[tol, 1], colors="black", alpha=0.5)
+    plt.contourf(axis1, axis2, zero_field, levels=[tol, 1], colors="red", alpha=0.5)
 
     # Legg til fargesøyle
     cbar = plt.colorbar()
