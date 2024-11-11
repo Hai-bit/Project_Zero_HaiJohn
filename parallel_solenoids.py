@@ -92,6 +92,6 @@ for plan, indeks, navn, farge in planer:
     print("|B(0, 0, 0)| = %.3f uT" % (np.linalg.norm(B_origo) * 1.0e6))
 
     # Plott feltstyrken ved bruk av metoden `plottingsone`
-    plottingsone(B_ax1, B_ax2, ax1, ax2, navn, farge)
+    plottingsone(B_ax1, B_ax2, ax1, ax2, navn, farge, tol=1.0e-7)
 
 plt.show()
