@@ -185,5 +185,5 @@ def plottingsone(
     elif R and L:
         title += f" ({R=}, {L=})"
 
-    plt.title(f"B-felt rundt en solenoide i {navn[0]}-planet")
+    plt.title(title) #Added inn the title since it was not counted in
     plt.grid(True)
