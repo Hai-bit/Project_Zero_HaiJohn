@@ -169,6 +169,18 @@ def plottingsone(
     # Plott områdene med feltstyrke under terskelen
     plt.contourf(axis1, axis2, zero_field, levels=[tol, 1], colors="red", alpha=0.5)
 
+    #Alternativt
+    # # Finn punktene der begge feltkomponentene er lik null
+    # zero_indices = np.where((np.abs(B1) <= tol) & (np.abs(B2) <= tol))
+
+    # # Plott nullpunktene
+    # plt.scatter(
+    #     axis1[zero_indices],
+    #     axis2[zero_indices],
+    #     color="red",
+    #     marker=".",
+    #     label="Nullpunkt",
+    # )
     # Legg til fargesøyle
     cbar = plt.colorbar()
     cbar.set_label("$|B| = 0$")
