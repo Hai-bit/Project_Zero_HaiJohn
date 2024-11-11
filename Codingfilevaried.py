@@ -46,6 +46,10 @@ def cal(L_liste, R_liste):
             n = N / L
             radius = R
             lengde = L
+
+            #Sier ut progressen til kalklulasjonen
+            print(f"Calulating B-field (R = {radius} and L = {lengde})")
+            
             # Oppretter koordinatene til solenoiden
             theta = np.linspace(0, 2 * np.pi * N, antall_punkter)
             z_solenoid = np.linspace(-lengde / 2, lengde / 2, antall_punkter)
@@ -87,4 +91,5 @@ Kalkulerer B feltet ved forskjellige typer
 """
 cal(lengde_liste, standard_radius)
 cal(standard_lengde, radius_liste)
+print("Completed") #Added the completion
 plt.show()
